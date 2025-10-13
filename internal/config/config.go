@@ -9,13 +9,28 @@ import (
 	"reflect"
 )
 
+type Key = string
+
 const (
-	RBRInstallationPath = "RBRInstallationPath"
+	RBRInstallationPath Key = "RBRInstallationPath"
+	DiscordToken        Key = "DiscordToken"
 )
 
 type Config struct {
-	RBRInstallationPath string `json:"rbr_installation_path"`
-	ConfigPath          string `json:"configPath"`
+	RBRInstallationPath Key `json:"rbr_installation_path"`
+	ConfigPath          Key `json:"configPath"`
+	DiscordToken        Key `json:"discord_token"`
+}
+
+func (c *Config) Get(name Key) (string, error) {
+	v := reflect.ValueOf(c).Elem()
+	f := v.FieldByName(name)
+
+	if f.Len() == 0 {
+		return "", fmt.Errorf("key %q value is empty", name)
+	}
+
+	return f.String(), nil
 }
 
 func (c *Config) Set(name string, value any) error {
