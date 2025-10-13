@@ -59,13 +59,34 @@ func main() {
 	lat := time.Since(start)
 	log.Printf("bot is up and running took %s", lat.String())
 
+	appId := discord.State.User.ID
+
+	registeredCommands := make(map[string]struct{})
+
 	// Register all commands
 	for _, handler := range handlers.Handlers {
-		_, err = discord.ApplicationCommandCreate(discord.State.User.ID, "", handler.Command())
+		_, err = discord.ApplicationCommandCreate(appId, "", handler.Command())
 		if err != nil {
 			log.Fatalf("error while registering command %q: %v", handler.Name(), err)
 		}
 		log.Printf("command %q registered and updated", handler.Name())
+		registeredCommands[handler.Name()] = struct{}{}
+	}
+
+	// Remove unused commands from slash command list
+	cmds, err := discord.ApplicationCommands(appId, "")
+	if err != nil {
+		log.Printf("could not get registered commands: %v", err)
+	}
+	for _, cmd := range cmds {
+		_, ok := registeredCommands[cmd.Name]
+		if !ok {
+			if err := discord.ApplicationCommandDelete(appId, "", cmd.ID); err != nil {
+				log.Printf("could not delete unused commands: %v", err)
+				continue
+			}
+			log.Printf("found %q command unused, deleting now", cmd.Name)
+		}
 	}
 
 	// Initialize rally organizer role
