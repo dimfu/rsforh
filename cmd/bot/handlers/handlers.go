@@ -22,6 +22,7 @@ var (
 var Handlers = []command.Command{
 	&Role{},
 	&Start{},
+	&Remove{},
 }
 
 func hasOrganizerRole(s *discordgo.Session, i *discordgo.InteractionCreate) error {

@@ -98,6 +98,7 @@ func (h *Start) Handler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 				Name:     name,
 				Type:     discordgo.ChannelTypeGuildText,
 				ParentID: cat.ID,
+				Topic:    fmt.Sprintf("RALLYID_%s", rallyInfo.id),
 			})
 			if err != nil {
 				log.Printf("could not create channel %q: \n%v", name, err)
